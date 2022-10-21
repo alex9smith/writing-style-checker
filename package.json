@@ -3,7 +3,15 @@
   "displayName": "Writing Style Checker",
   "description": "An English language writing style checker",
   "version": "0.0.1",
+  "homepage": "https://github.com/alex9smith/writing-style-checker",
+  "bugs": "https://github.com/alex9smith/writing-style-checker/issues",
+  "repository": "github:alex9smith/writing-style-checker",
+  "license": "MIT",
   "publisher": "alex9smith",
+  "author": {
+    "name": "Alex Whitehead-Smith",
+    "url": "https://github.com/alex9smith"
+  },
   "engines": {
     "vscode": "^1.72.0"
   },
