@@ -3,6 +3,7 @@
   "displayName": "Writing Style Checker",
   "description": "An English language writing style checker",
   "version": "0.0.1",
+  "publisher": "alex9smith",
   "engines": {
     "vscode": "^1.72.0"
   },
