@@ -11,7 +11,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:writing-style-checker.helloWorld"
+    "onLanguage:markdown"
   ],
   "main": "./out/extension.js",
   "contributes": {
