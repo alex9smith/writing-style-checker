@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import { Position, Range, TextLine } from "vscode";
 
-import { getComplexWords, getSuggestions } from "../../style";
+import { getComplexWords, getRangeOfWord, getSuggestions } from "../../style";
 
 function getLine(text: string): TextLine {
   const range = new Range(new Position(0, 0), new Position(0, text.length));
@@ -42,6 +42,27 @@ suite("style.ts", () => {
           "'suggestion1', 'suggestion2' or 'suggestion3'"
         );
       });
+    });
+  });
+
+  suite("getRangeOfWord", () => {
+    const line = getLine("hello there");
+    const range = getRangeOfWord(line, "there");
+
+    test("keeps the line number", () => {
+      assert.equal(range.start.line, line.lineNumber);
+    });
+
+    test("doesn't span multiple lines", () => {
+      assert.equal(range.start.line, range.end.line);
+    });
+
+    test("finds the start of the word", () => {
+      assert.equal(range.start.character, 6);
+    });
+
+    test("finds the end of the word", () => {
+      assert.equal(range.end.character, 11);
     });
   });
 

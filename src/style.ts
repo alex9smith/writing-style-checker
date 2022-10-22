@@ -12,18 +12,24 @@ export function getSuggestions(suggestions: string[]): string {
   }
 }
 
+export function getRangeOfWord(
+  line: vscode.TextLine,
+  word: string
+): vscode.Range {
+  const index = line.text.indexOf(word);
+  return new vscode.Range(
+    new vscode.Position(line.lineNumber, index),
+    new vscode.Position(line.lineNumber, index + word.length)
+  );
+}
+
 export function getComplexWords(line: vscode.TextLine): vscode.Diagnostic[] {
   return Object.keys(COMPLEX_WORDS)
     .map((word) => {
       if (line.text.includes(word)) {
-        const index = line.text.indexOf(word);
-        const range = new vscode.Range(
-          new vscode.Position(line.lineNumber, index),
-          new vscode.Position(line.lineNumber, index + word.length)
-        );
         const suggestions = COMPLEX_WORDS[word];
         return new vscode.Diagnostic(
-          range,
+          getRangeOfWord(line, word),
           `Complex. Omit or replace with ${getSuggestions(suggestions)}`,
           vscode.DiagnosticSeverity.Information
         );
