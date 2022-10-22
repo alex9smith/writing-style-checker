@@ -1,7 +1,8 @@
 import * as assert from "assert";
-import { Position } from "vscode";
+import * as vscode from "vscode";
 
 import {
+  COMPLETE_SENTENCE,
   getLine,
   SENTENCE_WITH_NO_ENDS,
   SENTENCE_WITH_ONE_END,
@@ -11,8 +12,77 @@ import {
 import {
   findSentenceEnds,
   getRangeOfWord,
+  getSentences,
   splitLineByPositions,
 } from "../../parsing";
+
+function buildDocument(lines: vscode.TextLine[]): vscode.TextDocument {
+  const document: vscode.TextDocument = {
+    uri: vscode.Uri.parse("file://"),
+    fileName: "",
+    isUntitled: false,
+    languageId: "",
+    version: 0,
+    isDirty: false,
+    isClosed: false,
+    save: function (): Thenable<boolean> {
+      throw new Error("Function not implemented.");
+    },
+    eol: vscode.EndOfLine.LF,
+    lineCount: lines.length,
+    lineAt: function (line: number | vscode.Position): vscode.TextLine {
+      if (typeof line === "number") {
+        const thisLine = lines[line];
+        return thisLine;
+      } else {
+        return lines[0];
+      }
+    },
+    offsetAt: function (position: vscode.Position): number {
+      throw new Error("Function not implemented.");
+    },
+    positionAt: function (offset: number): vscode.Position {
+      throw new Error("Function not implemented.");
+    },
+    getText: function (range?: vscode.Range | undefined): string {
+      throw new Error("Function not implemented.");
+    },
+    getWordRangeAtPosition: function (
+      position: vscode.Position,
+      regex?: RegExp | undefined
+    ): vscode.Range | undefined {
+      throw new Error("Function not implemented.");
+    },
+    validateRange: function (range: vscode.Range): vscode.Range {
+      throw new Error("Function not implemented.");
+    },
+    validatePosition: function (position: vscode.Position): vscode.Position {
+      throw new Error("Function not implemented.");
+    },
+  };
+  return document;
+}
+
+// Make sure the lines have sequential line numbers
+function getLinesForDocument(lines: vscode.TextLine[]): vscode.TextLine[] {
+  return lines.map((line, index) => {
+    const range = new vscode.Range(
+      new vscode.Position(index, line.range.start.character),
+      new vscode.Position(index, line.range.end.character)
+    );
+
+    const newLine: vscode.TextLine = {
+      lineNumber: index,
+      text: line.text,
+      range: range,
+      rangeIncludingLineBreak: range,
+      firstNonWhitespaceCharacterIndex: 0,
+      isEmptyOrWhitespace: false,
+    };
+
+    return newLine;
+  });
+}
 
 suite("parsing.ts", () => {
   suite("findSentenceEnds", () => {
@@ -61,7 +131,7 @@ suite("parsing.ts", () => {
 
   suite("splitLineByPosition", () => {
     suite("when positions is empty", () => {
-      const positions: Position[] = [];
+      const positions: vscode.Position[] = [];
       const line = getLine(SENTENCE_WITH_NO_ENDS);
       const split = splitLineByPositions(line, positions);
       test("it returns the line unchanged", () => {
@@ -137,6 +207,108 @@ suite("parsing.ts", () => {
 
     test("finds the end of the word", () => {
       assert.equal(range.end.character, 11);
+    });
+  });
+
+  suite("getSentences", () => {
+    suite("when each line is a complete sentence", () => {
+      const lines = getLinesForDocument([
+        getLine(COMPLETE_SENTENCE),
+        getLine(COMPLETE_SENTENCE),
+        getLine(COMPLETE_SENTENCE),
+      ]);
+      const document = buildDocument(lines);
+      const sentences = getSentences(document);
+
+      test("returns the same number of sentences as lines", () => {
+        assert.equal(sentences.length, lines.length);
+      });
+
+      test("each sentence contains a single line", () => {
+        const sentenceLineCounts = sentences.map((s) => {
+          return s.length;
+        });
+        assert(
+          sentenceLineCounts.every((c) => {
+            return c === 1;
+          })
+        );
+      });
+
+      test("each sentence has a different line number", () => {
+        const sentenceLineNumbers = sentences.flat().map((s) => {
+          return s.lineNumber;
+        });
+
+        assert.equal(
+          new Set(sentenceLineNumbers).size,
+          sentenceLineNumbers.length
+        );
+      });
+    });
+
+    suite("when there are two sentences in a single line", () => {
+      const lines = getLinesForDocument([
+        getLine(COMPLETE_SENTENCE + COMPLETE_SENTENCE),
+      ]);
+      const document = buildDocument(lines);
+      const sentences = getSentences(document);
+
+      test("returns two sentences", () => {
+        assert.equal(sentences.length, 2);
+      });
+
+      test("they have the same line number", () => {
+        const sentenceLineNumbers = sentences.flat().map((s) => {
+          return s.lineNumber;
+        });
+        assert.equal(new Set(sentenceLineNumbers).size, 1);
+      });
+
+      test("they don't overlap", () => {
+        const first = sentences.flat()[0];
+        const second = sentences.flat()[1];
+
+        assert(first.range.end.character < second.range.start.character);
+      });
+    });
+
+    suite("when a single sentence spans two lines", () => {
+      const lines = getLinesForDocument([
+        getLine(SENTENCE_WITH_NO_ENDS),
+        getLine("the end of the sentence."),
+      ]);
+      const document = buildDocument(lines);
+      const sentences = getSentences(document);
+
+      test("returns one sentence", () => {
+        assert.equal(sentences.length, 1);
+      });
+
+      test("the sentence has two lines", () => {
+        assert.equal(sentences[0].length, 2);
+      });
+
+      suite("and another sentence starts on the same line", () => {
+        const lines = getLinesForDocument([
+          getLine(SENTENCE_WITH_NO_ENDS),
+          getLine("the end of the sentence. And the start of another"),
+          getLine("which finishes here."),
+        ]);
+        const document = buildDocument(lines);
+        const sentences = getSentences(document);
+
+        test("returns two sentences", () => {
+          assert.equal(sentences.length, 2);
+        });
+
+        test("each sentence spans two different lines", () => {
+          sentences.forEach((s) => {
+            assert.equal(s.length, 2);
+            assert(s[0].lineNumber !== s[1].lineNumber);
+          });
+        });
+      });
     });
   });
 });

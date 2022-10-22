@@ -21,6 +21,7 @@ export const SENTENCE_WITH_ONE_END =
   "this is a line. It has a sentence end in it";
 export const SENTENCE_WITH_TWO_ENDS =
   "this is a line. It has a sentence end in it. It also has another";
+export const COMPLETE_SENTENCE = "This is a complete sentence.";
 
 export function run(): Promise<void> {
   // Create the mocha test

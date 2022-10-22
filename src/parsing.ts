@@ -1,10 +1,11 @@
 type Sentence = vscode.TextLine[];
+import * as vscode from "vscode";
 
 export function findSentenceEnds(
   line: vscode.TextLine,
   offset: number
 ): vscode.Position[] {
-  if (line.text.includes(".")) {
+  if (line && line.text.includes(".")) {
     const index = line.text.indexOf(".");
     const ends: vscode.Position[] = [];
 
@@ -35,7 +36,6 @@ export function findSentenceEnds(
     return [];
   }
 }
-import * as vscode from "vscode";
 
 export function splitLineByPositions(
   line: vscode.TextLine,
@@ -51,7 +51,7 @@ export function splitLineByPositions(
     );
     const firstLine: vscode.TextLine = {
       lineNumber: line.lineNumber,
-      text: line.text.substring(0, splitPoint),
+      text: line.text.substring(0, splitPoint + 1),
       range: firstRange,
       rangeIncludingLineBreak: firstRange,
       firstNonWhitespaceCharacterIndex: 0,
@@ -71,10 +71,14 @@ export function splitLineByPositions(
       isEmptyOrWhitespace: false,
     };
 
-    return [
-      firstLine,
-      ...splitLineByPositions(remainingLine, positions.slice(1)),
-    ];
+    if (remainingLine.text !== "") {
+      return [
+        firstLine,
+        ...splitLineByPositions(remainingLine, positions.slice(1)),
+      ];
+    } else {
+      return [firstLine];
+    }
   }
 }
 
@@ -87,4 +91,77 @@ export function getRangeOfWord(
     new vscode.Position(line.lineNumber, index),
     new vscode.Position(line.lineNumber, index + word.length)
   );
+}
+
+/**
+ * Splits the document into sentences which are an array of `TextLine`s.
+ * Sentences may span multiple lines and the first line of a sentence may
+ * not start at character position 0. This function updates the `range` of
+ * each `TextLine` to be correct.
+ * @param doc text document to split into sentences
+ */
+export function getSentences(doc: vscode.TextDocument): Sentence[] {
+  const sentences: Sentence[] = [];
+  let currentSentence: Sentence = [];
+
+  for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
+    const line = doc.lineAt(lineIndex);
+    const ends = findSentenceEnds(line, 0);
+    if (ends.length === 0) {
+      // The sentence doesn't end on this line, so the line's still part of the current sentence
+      currentSentence.push(line);
+    } else {
+      // The sentence does end on this line
+      const lineSentences = splitLineByPositions(line, ends);
+      if (ends.length === 1) {
+        // This line contains the end of one sentence and the start of the next.
+        // Finish the current sentence and start a new one.
+        currentSentence.push(lineSentences[0]);
+        sentences.push(currentSentence);
+        currentSentence = [];
+        currentSentence.push(lineSentences[1]);
+      } else {
+        // This line contains the end of one sentence, at least one more complete
+        // sentence and possibly the start of another.
+
+        // Complete the current sentence and start a new one.
+        const first = lineSentences.shift();
+        if (first) {
+          currentSentence.push(first);
+        }
+        sentences.push(currentSentence);
+        currentSentence = [];
+
+        if (findSentenceEnds(lineSentences.slice(-1)[0], 0).length === 0) {
+          // The last sentence on this line carries on to the next line
+          // Push all the complete sentences on the line to `sentences` and
+          // start the next sentence.
+          const last = lineSentences.pop();
+          lineSentences.forEach((s) => {
+            sentences.push([s]);
+          });
+          if (last) {
+            currentSentence.push(last);
+          }
+        } else {
+          // The last sentence on this line finishes at the end of this line
+          // All items in `lineSentences` are complete sentences so save them all
+          // to `sentences`.
+          lineSentences.forEach((s) => {
+            sentences.push([s]);
+          });
+        }
+      }
+    }
+  }
+  // Filter out any empty lines
+  return sentences.map((s) => {
+    return s.filter((l) => {
+      if (l) {
+        return l.text.length !== 0;
+      } else {
+        return false;
+      }
+    });
+  });
 }
