@@ -2,12 +2,18 @@ import * as assert from "assert";
 import { Position, Range, TextLine } from "vscode";
 
 import {
+  findSentenceEnds,
   getAdverbs,
   getComplexWords,
   getQualifyingWords,
   getRangeOfWord,
   getSuggestions,
 } from "../../style";
+
+const SENTENCE_WITH_NO_ENDS = "this is a line without a sentence end in it";
+const SENTENCE_WITH_ONE_END = "this is a line. It has a sentence end in it";
+const SENTENCE_WITH_TWO_ENDS =
+  "this is a line. It has a sentence end in it. It also has another";
 
 function getLine(text: string): TextLine {
   const range = new Range(new Position(0, 0), new Position(0, text.length));
@@ -22,6 +28,50 @@ function getLine(text: string): TextLine {
 }
 
 suite("style.ts", () => {
+  suite("findSentenceEnds", () => {
+    suite("when there is no sentence end", () => {
+      const line = getLine(SENTENCE_WITH_NO_ENDS);
+      const ends = findSentenceEnds(line, 0);
+
+      test("it returns an empty array", () => {
+        assert.equal(ends.length, 0);
+      });
+    });
+
+    suite("when there is one sentence end", () => {
+      const line = getLine(SENTENCE_WITH_ONE_END);
+      const ends = findSentenceEnds(line, 0);
+
+      test("it returns an array with one end", () => {
+        assert.equal(ends.length, 1);
+      });
+
+      test("it finds the end of the sentence", () => {
+        assert.equal(ends[0].character, SENTENCE_WITH_ONE_END.indexOf("."));
+      });
+    });
+
+    suite("when there is more than one sentence end", () => {
+      const line = getLine(SENTENCE_WITH_TWO_ENDS);
+      const ends = findSentenceEnds(line, 0);
+
+      test("it finds all the ends", () => {
+        assert.equal(ends.length, 2);
+      });
+
+      test("it finds the correct positions", () => {
+        assert.equal(ends[0].character, SENTENCE_WITH_TWO_ENDS.indexOf("."));
+        assert.equal(
+          ends[1].character,
+          SENTENCE_WITH_TWO_ENDS.indexOf(
+            ".",
+            SENTENCE_WITH_TWO_ENDS.indexOf(".") + 1
+          )
+        );
+      });
+    });
+  });
+
   suite("getSuggestions", () => {
     suite("when there is one suggestion", () => {
       test("returns the suggestion", () => {

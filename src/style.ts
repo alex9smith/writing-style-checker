@@ -2,6 +2,42 @@ import * as vscode from "vscode";
 
 import { ADVERBS, COMPLEX_WORDS, QUALIFYING_WORDS } from "./constants";
 
+export function findSentenceEnds(
+  line: vscode.TextLine,
+  offset: number
+): vscode.Position[] {
+  if (line.text.includes(".")) {
+    const index = line.text.indexOf(".");
+    const ends: vscode.Position[] = [];
+
+    ends.push(new vscode.Position(line.lineNumber, offset + index));
+
+    if (index === line.text.length - 1) {
+      // The sentence is the whole line
+      return ends;
+    } else {
+      // The next sentence starts on this line as well
+      const rangeRest = new vscode.Range(
+        new vscode.Position(line.lineNumber, offset + index + 1),
+        new vscode.Position(line.lineNumber, offset + line.text.length)
+      );
+
+      const restOfLine: vscode.TextLine = {
+        lineNumber: line.lineNumber,
+        text: line.text.substring(index + 1),
+        range: rangeRest,
+        rangeIncludingLineBreak: rangeRest,
+        firstNonWhitespaceCharacterIndex: 0,
+        isEmptyOrWhitespace: false,
+      };
+
+      return [...ends, ...findSentenceEnds(restOfLine, index + 1)];
+    }
+  } else {
+    return [];
+  }
+}
+
 export function getSuggestions(suggestions: string[]): string {
   if (suggestions.length === 1) {
     return `'${suggestions[0]}'`;
