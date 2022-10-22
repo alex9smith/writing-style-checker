@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { COMPLEX_WORDS } from "./constants";
+import { ADVERBS, COMPLEX_WORDS } from "./constants";
 
 export function getSuggestions(suggestions: string[]): string {
   if (suggestions.length === 1) {
@@ -31,6 +31,22 @@ export function getComplexWords(line: vscode.TextLine): vscode.Diagnostic[] {
         return new vscode.Diagnostic(
           getRangeOfWord(line, word),
           `Complex. Omit or replace with ${getSuggestions(suggestions)}`,
+          vscode.DiagnosticSeverity.Information
+        );
+      }
+    })
+    .filter((e) => {
+      return e !== undefined;
+    }) as vscode.Diagnostic[];
+}
+
+export function getAdverbs(line: vscode.TextLine): vscode.Diagnostic[] {
+  return Array.from(ADVERBS.values())
+    .map((word) => {
+      if (line.text.includes(word)) {
+        return new vscode.Diagnostic(
+          getRangeOfWord(line, word),
+          "Adverb. Use a forceful verb instead.",
           vscode.DiagnosticSeverity.Information
         );
       }

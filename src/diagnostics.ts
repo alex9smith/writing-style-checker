@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getComplexWords } from "./style";
+import { getAdverbs, getComplexWords } from "./style";
 
 /**
  * Analyzes the text document for problems.
@@ -14,7 +14,7 @@ export function refreshDiagnostics(
 
   for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
     const line = doc.lineAt(lineIndex);
-    diagnostics.push(...getComplexWords(line));
+    diagnostics.push(...getComplexWords(line), ...getAdverbs(line));
   }
 
   collection.set(doc.uri, diagnostics);

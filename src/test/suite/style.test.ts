@@ -1,7 +1,12 @@
 import * as assert from "assert";
 import { Position, Range, TextLine } from "vscode";
 
-import { getComplexWords, getRangeOfWord, getSuggestions } from "../../style";
+import {
+  getAdverbs,
+  getComplexWords,
+  getRangeOfWord,
+  getSuggestions,
+} from "../../style";
 
 function getLine(text: string): TextLine {
   const range = new Range(new Position(0, 0), new Position(0, text.length));
@@ -110,6 +115,34 @@ suite("style.ts", () => {
       test("has correct positions for both", () => {
         assert.equal(diagnostics[0].range.start.character, 12);
         assert.equal(diagnostics[1].range.start.character, 35);
+      });
+    });
+  });
+
+  suite("getAdverbs", () => {
+    suite("when there are no adverbs", () => {
+      test("returns an empty array", () => {
+        assert.equal(getAdverbs(getLine("hello there")).length, 0);
+      });
+    });
+    suite("when there is one adverb", () => {
+      const line = getLine("line with the adverb unfortunately");
+      const diagnostics = getAdverbs(line);
+
+      test("returns an array with one element", () => {
+        assert.equal(diagnostics.length, 1);
+      });
+
+      test("includes a message", () => {
+        assert.equal(
+          diagnostics[0].message,
+          "Adverb. Use a forceful verb instead."
+        );
+      });
+
+      test("has the correct position", () => {
+        assert.equal(diagnostics[0].range.start.character, 21);
+        assert.equal(diagnostics[0].range.end.character, 34);
       });
     });
   });
