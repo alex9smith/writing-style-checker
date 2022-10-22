@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { getRangeOfWord } from "./parsing";
+import { getRangeOfWord, Sentence } from "./parsing";
 import { ADVERBS, COMPLEX_WORDS, QUALIFYING_WORDS } from "./constants";
 
 export function getSuggestions(suggestions: string[]): string {
@@ -60,4 +60,24 @@ export function getQualifyingWords(line: vscode.TextLine): vscode.Diagnostic[] {
     .filter((e) => {
       return e !== undefined;
     }) as vscode.Diagnostic[];
+}
+
+export function calculateSentenceScore(sentence: Sentence): number {
+  const sentenceText = sentence
+    .map((l) => {
+      return l.text;
+    })
+    .join(" ");
+  const cleanText = sentenceText.replace(/[^a-z0-9. ]/gi, "") + ".";
+  const wordCount = cleanText.split(" ").length;
+  const letterCount = cleanText.split(" ").join("").length;
+
+  if (wordCount === 0 || letterCount === 0) {
+    return 0;
+  } else {
+    const score = Math.round(
+      4.71 * (letterCount / wordCount) + 0.5 * wordCount - 21.43
+    );
+    return Math.max(0, score);
+  }
 }

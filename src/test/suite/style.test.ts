@@ -1,11 +1,18 @@
 import * as assert from "assert";
 import { getLine } from ".";
 import {
+  calculateSentenceScore,
   getAdverbs,
   getComplexWords,
   getQualifyingWords,
   getSuggestions,
 } from "../../style";
+
+const SIMPLE_SENTENCE = "This is a simple sentence";
+const HARD_SENTENCE =
+  "The extension highlights lengthy, complex sentences and common errors; if you see a hard sentence, shorten or split it.";
+const VERY_HARD_SENTENCE =
+  "If you see a very hard highlight, your sentence is so dense and complicated that your readers will get lost trying to follow its meandering, splitting logic — try editing this sentence to remove the highlight.";
 
 suite("style.ts", () => {
   suite("getSuggestions", () => {
@@ -138,6 +145,27 @@ suite("style.ts", () => {
         assert.equal(diagnostics[0].range.start.character, 24);
         assert.equal(diagnostics[0].range.end.character, 31);
       });
+    });
+  });
+
+  suite("calculateSentenceScore", () => {
+    test("scores an empty sentence 0", () => {
+      assert.equal(calculateSentenceScore([getLine("")]), 0);
+    });
+
+    test("scores a simple sentence below 10", () => {
+      assert(calculateSentenceScore([getLine(SIMPLE_SENTENCE)]) < 10);
+    });
+
+    test("scores a hard sentence above 10 and less than or equal to 14", () => {
+      const score = calculateSentenceScore([getLine(HARD_SENTENCE)]);
+      assert(10 < score);
+      assert(score <= 14);
+    });
+
+    test("scores a very hard sentence above 14", () => {
+      const score = calculateSentenceScore([getLine(VERY_HARD_SENTENCE)]);
+      assert(14 < score);
     });
   });
 });

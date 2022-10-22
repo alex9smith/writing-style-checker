@@ -1,4 +1,4 @@
-type Sentence = vscode.TextLine[];
+export type Sentence = vscode.TextLine[];
 import * as vscode from "vscode";
 
 export function findSentenceEnds(
