@@ -20,14 +20,17 @@ suite("style.ts", () => {
     suite("when there is one suggestion", () => {
       test("returns the suggestion", () => {
         const suggestions = ["suggestion"];
-        assert.equal(getSuggestions(suggestions), suggestions[0]);
+        assert.equal(getSuggestions(suggestions), "'suggestion'");
       });
     });
 
     suite("when there are two suggestions", () => {
       test("separates them with 'or'", () => {
         const suggestions = ["suggestion1", "suggestion2"];
-        assert.equal(getSuggestions(suggestions), "suggestion1 or suggestion2");
+        assert.equal(
+          getSuggestions(suggestions),
+          "'suggestion1' or 'suggestion2'"
+        );
       });
     });
 
@@ -36,7 +39,7 @@ suite("style.ts", () => {
         const suggestions = ["suggestion1", "suggestion2", "suggestion3"];
         assert.equal(
           getSuggestions(suggestions),
-          "suggestion1, suggestion2 or suggestion3"
+          "'suggestion1', 'suggestion2' or 'suggestion3'"
         );
       });
     });
@@ -64,7 +67,7 @@ suite("style.ts", () => {
       });
 
       test("suggests replacements", () => {
-        assert(diagnostics[0].message.includes("many or some"));
+        assert(diagnostics[0].message.includes("'many' or 'some'"));
       });
 
       test("has the correct position", () => {

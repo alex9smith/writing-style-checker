@@ -4,11 +4,11 @@ import { COMPLEX_WORDS } from "./constants";
 
 export function getSuggestions(suggestions: string[]): string {
   if (suggestions.length === 1) {
-    return suggestions[0];
+    return `'${suggestions[0]}'`;
   } else {
     const last = suggestions.slice(-1)[0];
     const remaining = suggestions.slice(0, -1);
-    return `${remaining.join(", ")} or ${last}`;
+    return `'${remaining.join("', '")}' or '${last}'`;
   }
 }
 
