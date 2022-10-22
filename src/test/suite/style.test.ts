@@ -8,6 +8,7 @@ import {
   getQualifyingWords,
   getRangeOfWord,
   getSuggestions,
+  splitLineByPositions,
 } from "../../style";
 
 const SENTENCE_WITH_NO_ENDS = "this is a line without a sentence end in it";
@@ -67,6 +68,66 @@ suite("style.ts", () => {
             ".",
             SENTENCE_WITH_TWO_ENDS.indexOf(".") + 1
           )
+        );
+      });
+    });
+  });
+
+  suite("splitLineByPosition", () => {
+    suite("when positions is empty", () => {
+      const positions: Position[] = [];
+      const line = getLine(SENTENCE_WITH_NO_ENDS);
+      const split = splitLineByPositions(line, positions);
+      test("it returns the line unchanged", () => {
+        assert.equal(split.length, 1);
+        assert.equal(split[0], line);
+      });
+    });
+
+    suite("when there is one position to split on", () => {
+      const line = getLine(SENTENCE_WITH_ONE_END);
+      const positions = findSentenceEnds(line, 0);
+      const split = splitLineByPositions(line, positions);
+
+      test("returns two lines", () => {
+        assert.equal(split.length, 2);
+      });
+
+      test("the first line starts at character 0", () => {
+        assert.equal(split[0].range.start.character, 0);
+      });
+
+      test("the second line starts in the correct place", () => {
+        assert.equal(
+          split[1].range.start.character,
+          SENTENCE_WITH_ONE_END.indexOf(".") + 1
+        );
+      });
+
+      test("the lines don't overlap", () => {
+        assert(split[0].range.end.character < split[1].range.start.character);
+      });
+    });
+
+    suite("when there is more than one position", () => {
+      const line = getLine(SENTENCE_WITH_TWO_ENDS);
+      const positions = findSentenceEnds(line, 0);
+      const split = splitLineByPositions(line, positions);
+
+      test("it returns the right number of lines", () => {
+        assert.equal(split.length, 3);
+      });
+
+      test("none of the lines overlap", () => {
+        assert(split[0].range.end.character < split[1].range.start.character);
+        assert(split[1].range.end.character < split[2].range.start.character);
+      });
+
+      test("all the lines are the same line from the document", () => {
+        assert(
+          split.every((l) => {
+            return l.lineNumber === line.lineNumber;
+          })
         );
       });
     });
