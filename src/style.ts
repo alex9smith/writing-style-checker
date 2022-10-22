@@ -30,7 +30,7 @@ export function getComplexWords(line: vscode.TextLine): vscode.Diagnostic[] {
         const suggestions = COMPLEX_WORDS[word];
         return new vscode.Diagnostic(
           getRangeOfWord(line, word),
-          `Complex. Omit or replace with ${getSuggestions(suggestions)}`,
+          `Complex. Omit or replace with ${getSuggestions(suggestions)}.`,
           vscode.DiagnosticSeverity.Information
         );
       }
