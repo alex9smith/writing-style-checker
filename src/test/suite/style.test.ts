@@ -4,6 +4,7 @@ import { Position, Range, TextLine } from "vscode";
 import {
   getAdverbs,
   getComplexWords,
+  getQualifyingWords,
   getRangeOfWord,
   getSuggestions,
 } from "../../style";
@@ -143,6 +144,34 @@ suite("style.ts", () => {
       test("has the correct position", () => {
         assert.equal(diagnostics[0].range.start.character, 21);
         assert.equal(diagnostics[0].range.end.character, 34);
+      });
+    });
+  });
+
+  suite("getQualifyingWords", () => {
+    suite("when there are no qualifying words", () => {
+      test("returns an empty array", () => {
+        assert.equal(getQualifyingWords(getLine("hello there")).length, 0);
+      });
+    });
+    suite("when there is one qualifying word", () => {
+      const line = getLine("line with the qualifier perhaps");
+      const diagnostics = getQualifyingWords(line);
+
+      test("returns an array with one element", () => {
+        assert.equal(diagnostics.length, 1);
+      });
+
+      test("includes a message", () => {
+        assert.equal(
+          diagnostics[0].message,
+          "Qualifier. Be bold, don't hedge."
+        );
+      });
+
+      test("has the correct position", () => {
+        assert.equal(diagnostics[0].range.start.character, 24);
+        assert.equal(diagnostics[0].range.end.character, 31);
       });
     });
   });

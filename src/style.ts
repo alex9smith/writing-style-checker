@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { ADVERBS, COMPLEX_WORDS } from "./constants";
+import { ADVERBS, COMPLEX_WORDS, QUALIFYING_WORDS } from "./constants";
 
 export function getSuggestions(suggestions: string[]): string {
   if (suggestions.length === 1) {
@@ -47,6 +47,22 @@ export function getAdverbs(line: vscode.TextLine): vscode.Diagnostic[] {
         return new vscode.Diagnostic(
           getRangeOfWord(line, word),
           "Adverb. Use a forceful verb instead.",
+          vscode.DiagnosticSeverity.Information
+        );
+      }
+    })
+    .filter((e) => {
+      return e !== undefined;
+    }) as vscode.Diagnostic[];
+}
+
+export function getQualifyingWords(line: vscode.TextLine): vscode.Diagnostic[] {
+  return Array.from(QUALIFYING_WORDS.values())
+    .map((word) => {
+      if (line.text.includes(word)) {
+        return new vscode.Diagnostic(
+          getRangeOfWord(line, word),
+          "Qualifier. Be bold, don't hedge.",
           vscode.DiagnosticSeverity.Information
         );
       }
