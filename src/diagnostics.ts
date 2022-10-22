@@ -1,5 +1,11 @@
 import * as vscode from "vscode";
-import { getAdverbs, getComplexWords, getQualifyingWords } from "./style";
+import { getSentences } from "./parsing";
+import {
+  getAdverbs,
+  getComplexWords,
+  getDifficultyWarning,
+  getQualifyingWords,
+} from "./style";
 
 /**
  * Analyzes the text document for problems.
@@ -12,6 +18,7 @@ export function refreshDiagnostics(
 ): void {
   const diagnostics: vscode.Diagnostic[] = [];
 
+  // Line-based analysis
   for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
     const line = doc.lineAt(lineIndex);
     diagnostics.push(
@@ -20,6 +27,12 @@ export function refreshDiagnostics(
       ...getQualifyingWords(line)
     );
   }
+
+  // Sentence-based analysis
+  const sentences = getSentences(doc);
+  sentences.forEach((sentence) => {
+    diagnostics.push(...getDifficultyWarning(sentence));
+  });
 
   collection.set(doc.uri, diagnostics);
 }

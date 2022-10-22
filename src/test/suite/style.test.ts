@@ -1,9 +1,12 @@
 import * as assert from "assert";
+import * as vscode from "vscode";
+
 import { getLine } from ".";
 import {
   calculateSentenceScore,
   getAdverbs,
   getComplexWords,
+  getDifficultyWarning,
   getQualifyingWords,
   getSuggestions,
 } from "../../style";
@@ -166,6 +169,28 @@ suite("style.ts", () => {
     test("scores a very hard sentence above 14", () => {
       const score = calculateSentenceScore([getLine(VERY_HARD_SENTENCE)]);
       assert(14 < score);
+    });
+  });
+
+  suite("getDifficultyWarning", () => {
+    test("does not return a diagnostic for a simple sentence", () => {
+      const diagnostics = getDifficultyWarning([getLine(SIMPLE_SENTENCE)]);
+      assert.equal(diagnostics.length, 0);
+    });
+
+    test("returns an information diagnostic for a hard sentence", () => {
+      const diagnostics = getDifficultyWarning([getLine(HARD_SENTENCE)]);
+      assert.equal(diagnostics.length, 1);
+      assert.equal(
+        diagnostics[0].severity,
+        vscode.DiagnosticSeverity.Information
+      );
+    });
+
+    test("returns a warning diagnostic for a very hard sentence", () => {
+      const diagnostics = getDifficultyWarning([getLine(VERY_HARD_SENTENCE)]);
+      assert.equal(diagnostics.length, 1);
+      assert.equal(diagnostics[0].severity, vscode.DiagnosticSeverity.Warning);
     });
   });
 });

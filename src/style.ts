@@ -81,3 +81,38 @@ export function calculateSentenceScore(sentence: Sentence): number {
     return Math.max(0, score);
   }
 }
+
+export function getDifficultyWarning(sentence: Sentence): vscode.Diagnostic[] {
+  const score = calculateSentenceScore(sentence);
+  if (score <= 10) {
+    return [];
+  } else {
+    const firstLine = sentence[0];
+    const lastLine = sentence.slice(-1)[0];
+    const sentenceRange = new vscode.Range(
+      new vscode.Position(
+        firstLine.lineNumber,
+        firstLine.range.start.character
+      ),
+      new vscode.Position(lastLine.lineNumber, lastLine.range.end.character)
+    );
+
+    if (10 < score && score <= 14) {
+      return [
+        new vscode.Diagnostic(
+          sentenceRange,
+          "Hard sentence. Shorten or split it.",
+          vscode.DiagnosticSeverity.Information
+        ),
+      ];
+    } else {
+      return [
+        new vscode.Diagnostic(
+          sentenceRange,
+          "Very hard sentence. Shorten or split it.",
+          vscode.DiagnosticSeverity.Warning
+        ),
+      ];
+    }
+  }
+}
