@@ -3,6 +3,7 @@ import { getSentences } from "./parsing";
 import {
   getAdverbs,
   getComplexWords,
+  getConjunctionAtStart,
   getDifficultyWarning,
   getPassiveLanguage,
   getQualifyingWords,
@@ -34,7 +35,8 @@ export function refreshDiagnostics(
   sentences.forEach((sentence) => {
     diagnostics.push(
       ...getDifficultyWarning(sentence),
-      ...getPassiveLanguage(sentence)
+      ...getPassiveLanguage(sentence),
+      ...getConjunctionAtStart(sentence)
     );
   });
 

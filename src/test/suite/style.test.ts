@@ -6,7 +6,9 @@ import {
   calculateSentenceScore,
   getAdverbs,
   getComplexWords,
+  getConjunctionAtStart,
   getDifficultyWarning,
+  getFirstWordOfSentence,
   getPassiveLanguage,
   getQualifyingWords,
   getSuggestions,
@@ -19,6 +21,15 @@ const VERY_HARD_SENTENCE =
   "If you see a very hard highlight, your sentence is so dense and complicated that your readers will get lost trying to follow its meandering, splitting logic — try editing this sentence to remove the highlight.";
 
 suite("style.ts", () => {
+  suite("getFirstWordOfSentence", () => {
+    const sentence = [getLine(SIMPLE_SENTENCE)];
+    const first = getFirstWordOfSentence(sentence);
+
+    test("returns the first word", () => {
+      assert.equal(first, "This");
+    });
+  });
+
   suite("getSuggestions", () => {
     suite("when there is one suggestion", () => {
       test("returns the suggestion", () => {
@@ -257,6 +268,51 @@ suite("style.ts", () => {
         assert.equal(diagnostics[0].range.start.character, 21);
         assert.equal(diagnostics[1].range.start.line, 1);
         assert.equal(diagnostics[1].range.start.character, 26);
+      });
+    });
+  });
+
+  suite("getConjunctionAtStart", () => {
+    suite("when there isn't a conjunction at the start of the sentence", () => {
+      test("returns an empty array", () => {
+        const sentence = [getLine(SIMPLE_SENTENCE)];
+        const diagnostics = getConjunctionAtStart(sentence);
+        assert.equal(diagnostics.length, 0);
+      });
+
+      suite("when a sentence starts with a conjunction", () => {
+        const sentence = [
+          getLine("And a sentence that starts with a conjunction."),
+        ];
+        const diagnostics = getConjunctionAtStart(sentence);
+
+        test("returns one diagnostic", () => {
+          assert.equal(diagnostics.length, 1);
+          assert.equal(
+            diagnostics[0].message,
+            "Don't start a sentence with a conjunction."
+          );
+        });
+
+        test("the diagnostic has the right range", () => {
+          assert.equal(diagnostics[0].range.start.line, 0);
+          assert.equal(diagnostics[0].range.start.character, 0);
+          assert.equal(diagnostics[0].range.end.line, 0);
+          assert.equal(diagnostics[0].range.end.character, 3);
+        });
+
+        suite("when there is another conjunction in the sentence", () => {
+          const sentence = [
+            getLine(
+              "And a sentence that starts with a conjunction and has another in it."
+            ),
+          ];
+          const diagnostics = getConjunctionAtStart(sentence);
+
+          test("still returns one diagnostic", () => {
+            assert.equal(diagnostics.length, 1);
+          });
+        });
       });
     });
   });

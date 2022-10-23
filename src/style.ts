@@ -4,9 +4,14 @@ import { getRangeOfWord, Sentence } from "./parsing";
 import {
   ADVERBS,
   COMPLEX_WORDS,
+  CONJUNCTIONS,
   PASSIVE_PRE_WORDS,
   QUALIFYING_WORDS,
 } from "./constants";
+
+export function getFirstWordOfSentence(sentence: Sentence): string {
+  return sentence[0].text.split(" ")[0];
+}
 
 export function getSuggestions(suggestions: string[]): string {
   if (suggestions.length === 1) {
@@ -173,4 +178,30 @@ export function getPassiveLanguage(sentence: Sentence): vscode.Diagnostic[] {
   });
 
   return diagnostics;
+}
+
+export function getConjunctionAtStart(sentence: Sentence): vscode.Diagnostic[] {
+  const first = getFirstWordOfSentence(sentence);
+  if (CONJUNCTIONS.has(first.toLowerCase())) {
+    const range = new vscode.Range(
+      new vscode.Position(
+        sentence[0].lineNumber,
+        sentence[0].range.start.character
+      ),
+      new vscode.Position(
+        sentence[0].lineNumber,
+        sentence[0].range.start.character + first.length
+      )
+    );
+
+    return [
+      new vscode.Diagnostic(
+        range,
+        "Don't start a sentence with a conjunction.",
+        vscode.DiagnosticSeverity.Information
+      ),
+    ];
+  } else {
+    return [];
+  }
 }

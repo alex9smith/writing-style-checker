@@ -420,3 +420,28 @@ export const PASSIVE_PRE_WORDS: Set<string> = new Set([
   "been",
   "being",
 ]);
+
+export const CONJUNCTIONS: Set<string> = new Set([
+  "for",
+  "and",
+  "nor",
+  "but",
+  "or",
+  "yet",
+  "so",
+  "though",
+  "although",
+  "unless",
+  "than",
+  "whether",
+  "whereas",
+  "since",
+  "because",
+  "why",
+  "that",
+  "whatever",
+  "which",
+  "how",
+  "where",
+  "wherever",
+]);
