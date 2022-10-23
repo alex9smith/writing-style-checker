@@ -104,8 +104,16 @@ export function getSentences(doc: vscode.TextDocument): Sentence[] {
   const sentences: Sentence[] = [];
   let currentSentence: Sentence = [];
 
+  let inCodeBlock = false;
+
   for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
     const line = doc.lineAt(lineIndex);
+    if (line.text.startsWith("```")) {
+      inCodeBlock = !inCodeBlock;
+    }
+    if (inCodeBlock) {
+      continue;
+    }
     const ends = findSentenceEnds(line, 0);
     if (ends.length === 0) {
       // The sentence doesn't end on this line, so the line's still part of the current sentence

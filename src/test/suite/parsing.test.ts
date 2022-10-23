@@ -289,6 +289,22 @@ suite("parsing.ts", () => {
           });
         });
       });
+
+      suite("when there is a code block in the document", () => {
+        const lines = getLinesForDocument([
+          getLine("This is a sentence."),
+          getLine("```bash"),
+          getLine("ls -la ."),
+          getLine("```"),
+          getLine("This is another sentence."),
+        ]);
+        const document = buildDocument(lines);
+        const sentences = getSentences(document);
+
+        test("doesn't include the code block in sentences", () => {
+          assert.equal(sentences.length, 2);
+        });
+      });
     });
   });
 });
