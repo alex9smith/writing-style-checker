@@ -6,7 +6,7 @@
   "homepage": "https://github.com/alex9smith/writing-style-checker",
   "bugs": "https://github.com/alex9smith/writing-style-checker/issues",
   "repository": "https://github.com/alex9smith/writing-style-checker",
-  "icon": "./logo.png",
+  "icon": "logo.png",
   "license": "MIT",
   "publisher": "alex9smith",
   "author": {
