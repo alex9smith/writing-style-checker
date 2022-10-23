@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "homepage": "https://github.com/alex9smith/writing-style-checker",
   "bugs": "https://github.com/alex9smith/writing-style-checker/issues",
-  "repository": "github:alex9smith/writing-style-checker",
-  "icon": "https://github.com/alex9smith/writing-style-checker/blob/main/logo.png",
+  "repository": "https://github.com/alex9smith/writing-style-checker",
+  "icon": "./logo.png",
   "license": "MIT",
   "publisher": "alex9smith",
   "author": {
