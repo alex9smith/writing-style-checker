@@ -30,3 +30,17 @@ It checks for:
 - Refactor line level checks to use sentences
 - Ignore markdown headings & links
 - Add explanations for style rules to README
+
+## Developing the extension
+
+Pull requests are very welcome. Please include unit tests for any new features.
+
+You can run the test suite at the command line:
+
+```bash
+npm test
+```
+
+Since this is a VSCode extension you can also run the tests with the built in debugger.
+
+Go to 'Run and Debug' (⇧⌘D), select 'Extension Tests', set a breakpoint and press F5 to start the debugger.
