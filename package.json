@@ -2,10 +2,11 @@
   "name": "writing-style-checker",
   "displayName": "Writing Style Checker",
   "description": "An English language writing style checker",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "homepage": "https://github.com/alex9smith/writing-style-checker",
   "bugs": "https://github.com/alex9smith/writing-style-checker/issues",
   "repository": "github:alex9smith/writing-style-checker",
+  "icon": "https://github.com/alex9smith/writing-style-checker/blob/main/logo.png",
   "license": "MIT",
   "publisher": "alex9smith",
   "author": {
@@ -16,7 +17,7 @@
     "vscode": "^1.72.0"
   },
   "categories": [
-    "Other"
+    "Linters"
   ],
   "activationEvents": [
     "onLanguage:markdown"
