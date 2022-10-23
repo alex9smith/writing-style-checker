@@ -14,6 +14,10 @@ It checks for:
 - Qualifying words
 - Conjunctions at the start of sentences
 
+## Installation
+
+Install from the (VSCode Marketplace)[https://marketplace.visualstudio.com/items?itemName=alex9smith.writing-style-checker].
+
 ## Known issues
 
 - Doesn't detect multi-word complex phrases that span multiple lines
