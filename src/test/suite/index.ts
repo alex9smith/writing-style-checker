@@ -1,10 +1,13 @@
 import * as path from "path";
 import * as Mocha from "mocha";
 import * as glob from "glob";
-import { Range, Position, TextLine } from "vscode";
+import * as vscode from "vscode";
 
-export function getLine(text: string): TextLine {
-  const range = new Range(new Position(0, 0), new Position(0, text.length));
+export function getLine(text: string): vscode.TextLine {
+  const range = new vscode.Range(
+    new vscode.Position(0, 0),
+    new vscode.Position(0, text.length)
+  );
   return {
     lineNumber: 0,
     text: text,
@@ -22,6 +25,29 @@ export const SENTENCE_WITH_ONE_END =
 export const SENTENCE_WITH_TWO_ENDS =
   "this is a line. It has a sentence end in it. It also has another";
 export const COMPLETE_SENTENCE = "This is a complete sentence.";
+
+// Make sure the lines have sequential line numbers
+export function getLinesForDocument(
+  lines: vscode.TextLine[]
+): vscode.TextLine[] {
+  return lines.map((line, index) => {
+    const range = new vscode.Range(
+      new vscode.Position(index, line.range.start.character),
+      new vscode.Position(index, line.range.end.character)
+    );
+
+    const newLine: vscode.TextLine = {
+      lineNumber: index,
+      text: line.text,
+      range: range,
+      rangeIncludingLineBreak: range,
+      firstNonWhitespaceCharacterIndex: 0,
+      isEmptyOrWhitespace: false,
+    };
+
+    return newLine;
+  });
+}
 
 export function run(): Promise<void> {
   // Create the mocha test

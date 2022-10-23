@@ -410,3 +410,13 @@ export const ADVERBS: Set<string> = new Set([
   "wrinkly",
   "yearly",
 ]);
+
+export const PASSIVE_PRE_WORDS: Set<string> = new Set([
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "been",
+  "being",
+]);

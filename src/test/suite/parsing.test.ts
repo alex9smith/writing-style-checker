@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import {
   COMPLETE_SENTENCE,
   getLine,
+  getLinesForDocument,
   SENTENCE_WITH_NO_ENDS,
   SENTENCE_WITH_ONE_END,
   SENTENCE_WITH_TWO_ENDS,
@@ -61,27 +62,6 @@ function buildDocument(lines: vscode.TextLine[]): vscode.TextDocument {
     },
   };
   return document;
-}
-
-// Make sure the lines have sequential line numbers
-function getLinesForDocument(lines: vscode.TextLine[]): vscode.TextLine[] {
-  return lines.map((line, index) => {
-    const range = new vscode.Range(
-      new vscode.Position(index, line.range.start.character),
-      new vscode.Position(index, line.range.end.character)
-    );
-
-    const newLine: vscode.TextLine = {
-      lineNumber: index,
-      text: line.text,
-      range: range,
-      rangeIncludingLineBreak: range,
-      firstNonWhitespaceCharacterIndex: 0,
-      isEmptyOrWhitespace: false,
-    };
-
-    return newLine;
-  });
 }
 
 suite("parsing.ts", () => {

@@ -1,7 +1,12 @@
 import * as vscode from "vscode";
 
 import { getRangeOfWord, Sentence } from "./parsing";
-import { ADVERBS, COMPLEX_WORDS, QUALIFYING_WORDS } from "./constants";
+import {
+  ADVERBS,
+  COMPLEX_WORDS,
+  PASSIVE_PRE_WORDS,
+  QUALIFYING_WORDS,
+} from "./constants";
 
 export function getSuggestions(suggestions: string[]): string {
   if (suggestions.length === 1) {
@@ -115,4 +120,57 @@ export function getDifficultyWarning(sentence: Sentence): vscode.Diagnostic[] {
       ];
     }
   }
+}
+
+export function getPassiveLanguage(sentence: Sentence): vscode.Diagnostic[] {
+  const diagnostics: vscode.Diagnostic[] = [];
+  sentence.forEach((line, lineIndex) => {
+    const words = line.text.trim().split(" ");
+    words.forEach((word, wordIndex) => {
+      // Skip the last word of the sentence
+      if (lineIndex === sentence.length - 1 && wordIndex === words.length - 1) {
+        return;
+      } else {
+        if (PASSIVE_PRE_WORDS.has(word)) {
+          const wordPosition = new vscode.Position(
+            line.lineNumber,
+            line.range.start.character + line.text.indexOf(word)
+          );
+
+          let nextWord: string;
+          let nextWordPosition: vscode.Position;
+          if (wordIndex === words.length - 1) {
+            // first word of the next line
+            nextWord = sentence[lineIndex + 1].text.split(" ")[0];
+            nextWordPosition = new vscode.Position(
+              line.lineNumber + 1,
+              sentence[lineIndex + 1].range.start.character +
+                sentence[lineIndex + 1].text.indexOf(nextWord) +
+                nextWord.length
+            );
+          } else {
+            nextWord = words[wordIndex + 1];
+            nextWordPosition = new vscode.Position(
+              line.lineNumber,
+              line.range.start.character +
+                line.text.indexOf(nextWord) +
+                nextWord.length
+            );
+          }
+
+          if (nextWord.replace(/[^a-z0-9.]/gi, "").endsWith("ed")) {
+            diagnostics.push(
+              new vscode.Diagnostic(
+                new vscode.Range(wordPosition, nextWordPosition),
+                "Passive voice. Use active voice.",
+                vscode.DiagnosticSeverity.Information
+              )
+            );
+          }
+        }
+      }
+    });
+  });
+
+  return diagnostics;
 }

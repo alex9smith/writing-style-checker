@@ -4,6 +4,7 @@ import {
   getAdverbs,
   getComplexWords,
   getDifficultyWarning,
+  getPassiveLanguage,
   getQualifyingWords,
 } from "./style";
 
@@ -31,7 +32,10 @@ export function refreshDiagnostics(
   // Sentence-based analysis
   const sentences = getSentences(doc);
   sentences.forEach((sentence) => {
-    diagnostics.push(...getDifficultyWarning(sentence));
+    diagnostics.push(
+      ...getDifficultyWarning(sentence),
+      ...getPassiveLanguage(sentence)
+    );
   });
 
   collection.set(doc.uri, diagnostics);

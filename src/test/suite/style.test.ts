@@ -1,12 +1,13 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
 
-import { getLine } from ".";
+import { getLine, getLinesForDocument } from ".";
 import {
   calculateSentenceScore,
   getAdverbs,
   getComplexWords,
   getDifficultyWarning,
+  getPassiveLanguage,
   getQualifyingWords,
   getSuggestions,
 } from "../../style";
@@ -191,6 +192,72 @@ suite("style.ts", () => {
       const diagnostics = getDifficultyWarning([getLine(VERY_HARD_SENTENCE)]);
       assert.equal(diagnostics.length, 1);
       assert.equal(diagnostics[0].severity, vscode.DiagnosticSeverity.Warning);
+    });
+  });
+
+  suite("getPassiveLanguage", () => {
+    suite("when there is no passive language in a sentence", () => {
+      test("returns an empty array", () => {
+        const sentence = [getLine(SIMPLE_SENTENCE)];
+        const diagnostics = getPassiveLanguage(sentence);
+
+        assert.equal(diagnostics.length, 0);
+      });
+    });
+
+    suite("when there is one use of passive language", () => {
+      const sentence = [
+        getLine("This sentence should be marked for passive language."),
+      ];
+      const diagnostics = getPassiveLanguage(sentence);
+
+      test("returns one diagnostic", () => {
+        assert.equal(diagnostics.length, 1);
+      });
+
+      test("the diagnostic has the correct range", () => {
+        assert.equal(diagnostics[0].range.start.line, sentence[0].lineNumber);
+        assert.equal(diagnostics[0].range.start.character, 21);
+        assert.equal(diagnostics[0].range.end.character, 30);
+      });
+    });
+
+    suite("when passive language spans two lines", () => {
+      const sentence = getLinesForDocument([
+        getLine("This sentence should be "),
+        getLine("marked for passive language."),
+      ]);
+      const diagnostics = getPassiveLanguage(sentence);
+
+      test("returns one diagnostic", () => {
+        assert.equal(diagnostics.length, 1);
+      });
+
+      test("the diagnostic range spans two lines", () => {
+        assert.equal(diagnostics[0].range.start.line, 0);
+        assert.equal(diagnostics[0].range.start.character, 21);
+        assert.equal(diagnostics[0].range.end.line, 1);
+        assert.equal(diagnostics[0].range.end.character, 6);
+      });
+    });
+
+    suite("when there's two uses of passive language", () => {
+      const sentence = getLinesForDocument([
+        getLine("This sentence should be marked for passive language."),
+        getLine("This sentence also should be marked for passive language."),
+      ]);
+      const diagnostics = getPassiveLanguage(sentence);
+
+      test("returns two diagnostics", () => {
+        assert.equal(diagnostics.length, 2);
+      });
+
+      test("the diagnostics are in the correct place", () => {
+        assert.equal(diagnostics[0].range.start.line, 0);
+        assert.equal(diagnostics[0].range.start.character, 21);
+        assert.equal(diagnostics[1].range.start.line, 1);
+        assert.equal(diagnostics[1].range.start.character, 26);
+      });
     });
   });
 });
