@@ -110,6 +110,11 @@ export function getSentences(doc: vscode.TextDocument): Sentence[] {
     const line = doc.lineAt(lineIndex);
     if (line.text.startsWith("```")) {
       inCodeBlock = !inCodeBlock;
+      // End the current sentence when a code block starts
+      if (inCodeBlock && currentSentence.length !== 0) {
+        sentences.push(currentSentence);
+        currentSentence = [];
+      }
     }
     if (inCodeBlock) {
       continue;
@@ -127,6 +132,13 @@ export function getSentences(doc: vscode.TextDocument): Sentence[] {
     } else {
       // The sentence does end on this line
       const lineSentences = splitLineByPositions(line, ends);
+      if (lineSentences.length === 1) {
+        // The sentence ends at the end of this line
+        currentSentence.push(line);
+        sentences.push(currentSentence);
+        currentSentence = [];
+        continue;
+      }
       if (ends.length === 1) {
         // This line contains the end of one sentence and the start of the next.
         // Finish the current sentence and start a new one.

@@ -305,6 +305,25 @@ suite("parsing.ts", () => {
       test("doesn't include the code block in sentences", () => {
         assert.equal(sentences.length, 2);
       });
+
+      suite(
+        "when the line before the code block doesn't end in a full stop",
+        () => {
+          const lines = getLinesForDocument([
+            getLine("This is a code block:"),
+            getLine("```bash"),
+            getLine("ls -la ."),
+            getLine("```"),
+            getLine("This is another sentence."),
+          ]);
+          const document = buildDocument(lines);
+          const sentences = getSentences(document);
+
+          test("ends the sentence at the start of the code block", () => {
+            assert.equal(sentences.length, 2);
+          });
+        }
+      );
     });
 
     suite("when there is an empty line in the document", () => {

@@ -1,9 +1,10 @@
 # Change Log
 
-All notable changes to the "writing-style-checker" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
 ## [Unreleased]
+
+- Only run against Markdown files
+- Improve sentence end detection. Now finishes the current sentence when it finds an empty line or the start of a code block
+
+## 1.0.0
 
 - Initial release
