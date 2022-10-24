@@ -26,11 +26,6 @@ Install from the (VSCode Marketplace)[https://marketplace.visualstudio.com/items
 
 ## To do
 
-- Improve sentence end detection:
-
-  - Count ':' then a new line starting a code block as a new sentence
-  - Bulleted and numbered lists
-
 - Refactor line level checks to use sentences
 - Ignore markdown headings & links
 - Add explanations for style rules to README

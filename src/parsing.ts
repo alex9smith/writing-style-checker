@@ -107,6 +107,7 @@ export function getSentences(doc: vscode.TextDocument): Sentence[] {
   let inCodeBlock = false;
 
   for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
+    let endSentenceAtEndOfLine = false;
     const line = doc.lineAt(lineIndex);
     if (line.text.startsWith("```")) {
       inCodeBlock = !inCodeBlock;
@@ -122,6 +123,16 @@ export function getSentences(doc: vscode.TextDocument): Sentence[] {
     if (line.text.trim() === "") {
       // Treat an empty line as the end of a sentence
       sentences.push(currentSentence);
+      currentSentence = [];
+      continue;
+    }
+    if (line.text.match(/\s*?-\s/g)) {
+      // This line is part of a bulleted list. Treat each line in the list
+      // as a separate sentence
+      if (currentSentence.length !== 0) {
+        sentences.push(currentSentence);
+      }
+      sentences.push([line]);
       currentSentence = [];
       continue;
     }
@@ -180,14 +191,20 @@ export function getSentences(doc: vscode.TextDocument): Sentence[] {
       }
     }
   }
-  // Filter out any empty lines
-  return sentences.map((s) => {
-    return s.filter((l) => {
-      if (l) {
-        return l.text.length !== 0;
-      } else {
-        return false;
-      }
+
+  // Filter out any empty sentences
+  return sentences
+    .filter((s) => {
+      return s.length !== 0;
+    })
+    .map((s) => {
+      // Filter out any empty lines
+      return s.filter((l) => {
+        if (l) {
+          return l.text.length !== 0;
+        } else {
+          return false;
+        }
+      });
     });
-  });
 }

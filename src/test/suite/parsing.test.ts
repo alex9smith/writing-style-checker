@@ -342,5 +342,20 @@ suite("parsing.ts", () => {
         assert.equal(sentences[1][0].lineNumber, 2);
       });
     });
+
+    suite("when there is a bulleted list in the document", () => {
+      const lines = getLinesForDocument([
+        getLine("This is a list:"),
+        getLine(" - list item 1"),
+        getLine(" - list item 2"),
+        getLine("This is another sentence."),
+      ]);
+      const document = buildDocument(lines);
+      const sentences = getSentences(document);
+
+      test("ends the sentence at the start of the list", () => {
+        assert.equal(sentences.length, 4);
+      });
+    });
   });
 });
