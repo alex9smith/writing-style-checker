@@ -289,21 +289,38 @@ suite("parsing.ts", () => {
           });
         });
       });
+    });
 
-      suite("when there is a code block in the document", () => {
-        const lines = getLinesForDocument([
-          getLine("This is a sentence."),
-          getLine("```bash"),
-          getLine("ls -la ."),
-          getLine("```"),
-          getLine("This is another sentence."),
-        ]);
-        const document = buildDocument(lines);
-        const sentences = getSentences(document);
+    suite("when there is a code block in the document", () => {
+      const lines = getLinesForDocument([
+        getLine("This is a sentence."),
+        getLine("```bash"),
+        getLine("ls -la ."),
+        getLine("```"),
+        getLine("This is another sentence."),
+      ]);
+      const document = buildDocument(lines);
+      const sentences = getSentences(document);
 
-        test("doesn't include the code block in sentences", () => {
-          assert.equal(sentences.length, 2);
-        });
+      test("doesn't include the code block in sentences", () => {
+        assert.equal(sentences.length, 2);
+      });
+    });
+
+    suite("when there is an empty line in the document", () => {
+      const lines = getLinesForDocument([
+        getLine("This is a sentence without a full stop"),
+        getLine(""),
+        getLine("This is another sentence."),
+      ]);
+      const document = buildDocument(lines);
+      const sentences = getSentences(document);
+
+      test("ends a sentence on an empty line", () => {
+        assert.equal(sentences.length, 2);
+        assert.equal(sentences[0].length, 1);
+        assert.equal(sentences[0][0].lineNumber, 0);
+        assert.equal(sentences[1][0].lineNumber, 2);
       });
     });
   });

@@ -114,6 +114,12 @@ export function getSentences(doc: vscode.TextDocument): Sentence[] {
     if (inCodeBlock) {
       continue;
     }
+    if (line.text.trim() === "") {
+      // Treat an empty line as the end of a sentence
+      sentences.push(currentSentence);
+      currentSentence = [];
+      continue;
+    }
     const ends = findSentenceEnds(line, 0);
     if (ends.length === 0) {
       // The sentence doesn't end on this line, so the line's still part of the current sentence
