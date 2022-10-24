@@ -18,6 +18,9 @@ export function refreshDiagnostics(
   doc: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): void {
+  if (doc.languageId !== "markdown") {
+    return;
+  }
   const diagnostics: vscode.Diagnostic[] = [];
 
   // Line-based analysis
