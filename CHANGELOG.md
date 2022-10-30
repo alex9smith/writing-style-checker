@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.2.0
 
 - Change sentence classification. Hard sentences must now be more than 10 words long, and very hard sentences must be at least 15 words long.
 
