@@ -185,25 +185,35 @@ suite("style.ts", () => {
   });
 
   suite("getDifficultyWarning", () => {
-    test("does not return a diagnostic for a simple sentence", () => {
+    suite("for a simple sentence", () => {
       const diagnostics = getDifficultyWarning([getLine(SIMPLE_SENTENCE)]);
-      assert.equal(diagnostics.length, 0);
+
+      test("does not return a diagnostic", () => {
+        assert.equal(diagnostics.length, 0);
+      });
     });
 
-    test("returns an information diagnostic for a hard sentence", () => {
+    suite("for a hard sentence", () => {
       const diagnostics = getDifficultyWarning([getLine(HARD_SENTENCE)]);
-      assert.equal(diagnostics.length, 1);
-      assert.equal(
-        diagnostics[0].severity,
-        vscode.DiagnosticSeverity.Information
-      );
+
+      test("returns an information diagnostic", () => {
+        assert.equal(diagnostics.length, 1);
+        assert.equal(
+          diagnostics[0].severity,
+          vscode.DiagnosticSeverity.Information
+        );
+      });
     });
 
-    test("returns a warning diagnostic for a very hard sentence", () => {
+    suite("for a very hard sentence", () => {
       const diagnostics = getDifficultyWarning([getLine(VERY_HARD_SENTENCE)]);
-      assert.equal(diagnostics.length, 1);
-      assert.equal(diagnostics[0].severity, vscode.DiagnosticSeverity.Warning);
+
+      test("returns a warning diagnostic", () => {
+        assert.equal(diagnostics.length, 1);
+        assert.equal(diagnostics[0].severity, vscode.DiagnosticSeverity.Warning);
+      });
     });
+
   });
 
   suite("getPassiveLanguage", () => {

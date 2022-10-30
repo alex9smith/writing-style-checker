@@ -106,16 +106,9 @@ export function getDifficultyWarning(sentence: Sentence): vscode.Diagnostic[] {
       ),
       new vscode.Position(lastLine.lineNumber, lastLine.range.end.character)
     );
+    const wordCount = sentence.map((l) => {return l.text;}).join(" ").trim().split(" ").length;
 
-    if (10 < score && score <= 14) {
-      return [
-        new vscode.Diagnostic(
-          sentenceRange,
-          "Hard sentence. Shorten or split it.",
-          vscode.DiagnosticSeverity.Information
-        ),
-      ];
-    } else {
+    if (score > 14 && wordCount >= 15) {
       return [
         new vscode.Diagnostic(
           sentenceRange,
@@ -124,8 +117,20 @@ export function getDifficultyWarning(sentence: Sentence): vscode.Diagnostic[] {
         ),
       ];
     }
+
+    if (wordCount > 10) {
+      return [
+        new vscode.Diagnostic(
+          sentenceRange,
+          "Hard sentence. Shorten or split it.",
+          vscode.DiagnosticSeverity.Information
+        ),
+      ];
+    }
+
+    return [];
+    }
   }
-}
 
 export function getPassiveLanguage(sentence: Sentence): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
